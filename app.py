@@ -66,8 +66,8 @@ app.layout = html.Div(
                                 {'label': 'Z3', 'value': 'z3'},
                                 {'label': 'OptiMathSAT', 'value': 'oms'}
                             ],
-                            value=['cr'],
-                            labelStyle={'display': 'inline-block', 'margin-left':'20px'},
+                            value=['cr', 'barcelogic', 'z3', 'oms'],
+                            labelStyle={'display': 'inline-block', 'margin-left': '20px'},
                             style={'text-align': "center"},
                             inputStyle={"margin-right": "5px"}
                         ),
@@ -85,14 +85,6 @@ app.layout = html.Div(
                             style={'text-align': "center"},
                             inputStyle={"margin-right": "5px"}
                         ),
-                        html.H5("Filter by relation between number of necessary instructions divided by initial number of instructions:",
-                                style={"margin-top" : "15px", "margin-bottom": "30px", "text-align" : "center"}),
-                        dcc.RangeSlider(
-                            marks={i: '{}%'.format(i*10) for i in range(0, 11)},
-                            min=0,
-                            max=10,
-                            value=[0, 10]
-                        )
                     ],
                     className="pretty_container five columns"),
                 html.Div(
@@ -117,6 +109,28 @@ app.layout = html.Div(
                     ],
                     className="pretty_container seven columns"
                 ),
+            ],
+            className="row flex-display",
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.H5("Filter by relation between number of necessary instructions divided by initial number of instructions:",
+                                style={"margin-top" : "15px", "margin-bottom": "30px", "text-align" : "center"}),
+                        dcc.RangeSlider(
+                            marks={i: '{}%'.format(i*10) for i in range(0, 11)},
+                            min=0,
+                            max=10,
+                            value=[0, 10]
+                        )
+                    ],
+                    className="pretty_container five columns"),
+                html.Div(
+                    [
+                        dcc.Loading(dcc.Graph(id='encoding-total-times'))
+                    ],
+                    className="pretty_container seven columns"),
             ],
             className="row flex-display",
         ),
