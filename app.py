@@ -1,16 +1,6 @@
 # Import required libraries
-import base64
-import io
-import os
-import pathlib
-from os import listdir
-from os.path import join, isfile
-from PIL import Image
-import matplotlib.image as mpimg
-from dash.exceptions import PreventUpdate
-from plots import *
-import pandas as pd
 
+from plots import *
 import dash
 from dash.dependencies import Input, Output
 import dash_core_components as dcc
@@ -61,29 +51,32 @@ app.layout = html.Div(
                         html.H5("Choose solver option:", style={"margin-top" : "15px", "margin-bottom": "10px", "text-align" : "center"}),
                         dcc.Checklist(
                             options=[
-                                {'label': 'Combined results', 'value': 'cr'},
+                                {'label': 'Combined results', 'value': 'combined'},
                                 {'label': 'Barcelogic', 'value': 'barcelogic'},
                                 {'label': 'Z3', 'value': 'z3'},
                                 {'label': 'OptiMathSAT', 'value': 'oms'}
                             ],
-                            value=['cr', 'barcelogic', 'z3', 'oms'],
+                            value=['combined', 'barcelogic', 'z3', 'oms'],
                             labelStyle={'display': 'inline-block', 'margin-left': '20px'},
                             style={'text-align': "center"},
-                            inputStyle={"margin-right": "5px"}
+                            inputStyle={"margin-right": "5px"},
+                            id='solver'
                         ),
                         html.H5("Choose encoding option:", style={"margin-top" : "15px", "margin-bottom": "10px", "text-align" : "center"}),
                         dcc.Checklist(
                             options=[
-                                {'label': 'Initial configuration', 'value': 'initial'},
+                                {'label': 'Initial configuration', 'value': 'initial_configuration'},
                                 {'label': 'At most one uninterpreted function', 'value': 'at_most'},
-                                {'label': 'Every numerical value must be pushed', 'value': 'pushed'},
-                                {'label': 'No output before a POP instruction', 'value': 'no_output'},
-                                {'label': 'Alternative gas model', 'value': 'gas'},
+                                {'label': 'Every numerical value must be pushed', 'value': 'pushed_once'},
+                                {'label': 'No output before a POP instruction', 'value': 'no_output_before_pop'},
+                                {'label': 'Alternative gas model', 'value': 'alternative_gas_model'},
                             ],
-                            value=['initial', 'at_most', 'pushed', 'no_output', 'gas'],
+                            # value=['initial_configuration', 'at_most', 'pushed_once', 'no_output_before_pop', 'alternative_gas_model'],
+                            value=['initial_configuration', 'at_most'],
                             labelStyle={'display': 'inline-block', 'margin-left':'20px'},
                             style={'text-align': "center"},
-                            inputStyle={"margin-right": "5px"}
+                            inputStyle={"margin-right": "5px"},
+                            id='encoding'
                         ),
                     ],
                     className="pretty_container five columns"),
@@ -122,7 +115,9 @@ app.layout = html.Div(
                             marks={i: '{}%'.format(i*10) for i in range(0, 11)},
                             min=0,
                             max=10,
-                            value=[0, 10]
+                            value=[0, 10],
+                            id='range',
+                            allowCross=False
                         )
                     ],
                     className="pretty_container five columns"),
@@ -138,6 +133,27 @@ app.layout = html.Div(
     id="mainContainer",
     style={"display": "flex", "flex-direction": "column"},
 )
+
+
+@app.callback([Output('encoding-time', 'figure'), Output('encoding-gas', 'figure'),
+               Output('encoding-statistics', 'figure'), Output('encoding-total-times', 'figure')],
+              [Input('solver', 'value'), Input('encoding', 'value'), Input('range', 'value')])
+def update_stage_one(selected_solvers, selected_encodings, selected_range):
+    ctx = dash.callback_context
+
+    change = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    range_figure = plot_total_times(selected_range, selected_solvers, selected_encodings)
+
+    # If we only change the range, then only the last figure must be updated.
+    if change == "range":
+        return dash.no_update, dash.no_update, dash.no_update, range_figure
+    else:
+        time_figure = plot_time(selected_solvers, selected_encodings)
+        gas_figure = plot_gas(selected_solvers, selected_encodings)
+        statistics_figure = plot_statistics(selected_solvers, selected_encodings)
+        return time_figure, gas_figure, statistics_figure, range_figure
+
 
 server = app.server
 
