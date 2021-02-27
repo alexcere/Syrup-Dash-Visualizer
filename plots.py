@@ -8,26 +8,6 @@ import pathlib
 PATH = pathlib.Path(__file__).parent
 DATA_PATH = (PATH.joinpath("data")).resolve()
 
-def plot_total_times(selected_range, solvers, encodings):
-    fig = go.Figure()
-    for encoding in encodings:
-        times = []
-        labels = []
-        for solver in solvers:
-            csv_name = str(DATA_PATH) + "/" + encoding + "_" + solver + "_size.csv"
-            df = pd.read_csv(csv_name)
-            total_time = 0
-            row = list(filter(lambda row: row['category'] == 'times', df.to_dict('records')))[0]
-            for elem in range(selected_range[0], selected_range[1] + 1):
-                total_time += row[str(elem)] / 60
-            times.append(total_time)
-            labels.append(solver)
-        fig.add_trace(go.Bar(y=times, x=labels, name=encoding))
-    fig.update_layout(
-        yaxis_title='Comparison in minutes among different blocks',
-    )
-    return fig
-
 
 def plot_time(folder_name, encodings):
     fig = go.Figure()

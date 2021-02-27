@@ -14,7 +14,7 @@ app = dash.Dash(
     __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}]
 )
 
-app.title="Syrup Data Visualizer"
+app.title = "Syrup Data Visualizer"
 # Create app layout
 app.layout = html.Div(
     [
@@ -37,18 +37,19 @@ app.layout = html.Div(
                 )
             ],
             id="header",
-            style={"margin-bottom": "25px", "text-align" : "center"},),
+            style={"margin-bottom": "25px", "text-align": "center"}, ),
         html.Div(
             [
                 html.H3("Stage one: Determining the best encoding"),
             ],
-            style={"margin-top" : "25px", "margin-bottom": "25px", "text-align" : "center"},
+            style={"margin-top": "25px", "margin-bottom": "25px", "text-align": "center"},
         ),
         html.Div(
             [
                 html.Div(
                     [
-                        html.H5("Choose solver option:", style={"margin-top" : "15px", "margin-bottom": "10px", "text-align" : "center"}),
+                        html.H5("Choose solver option:",
+                                style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
                         dcc.Checklist(
                             options=[
                                 {'label': 'Combined results', 'value': 'combined'},
@@ -62,7 +63,8 @@ app.layout = html.Div(
                             inputStyle={"margin-right": "5px"},
                             id='solver'
                         ),
-                        html.H5("Choose encoding option:", style={"margin-top" : "15px", "margin-bottom": "10px", "text-align" : "center"}),
+                        html.H5("Choose encoding option:",
+                                style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
                         dcc.Checklist(
                             options=[
                                 {'label': 'Initial configuration', 'value': 'initial_configuration'},
@@ -73,7 +75,7 @@ app.layout = html.Div(
                             ],
                             # value=['initial_configuration', 'at_most', 'pushed_once', 'no_output_before_pop', 'alternative_gas_model'],
                             value=['initial_configuration', 'at_most'],
-                            labelStyle={'display': 'inline-block', 'margin-left':'20px'},
+                            labelStyle={'display': 'inline-block', 'margin-left': '20px'},
                             style={'text-align': "center"},
                             inputStyle={"margin-right": "5px"},
                             id='encoding'
@@ -107,28 +109,98 @@ app.layout = html.Div(
         ),
         html.Div(
             [
+                html.H4("Determine possible parameters that affect the encoding"),
+            ],
+            style={"margin-top": "25px", "margin-bottom": "25px", "text-align": "center"},
+        ),
+        html.Div(
+            [
+                html.Div([
+                    html.H5("Choose first category:", style={"margin-top": "15px", "margin-bottom": "10px",
+                                                             "text-align": "center"}),
+                    dcc.RadioItems(
+                        options=[
+                            {'label': 'No output before pop', 'value': 'no_output_before_pop'},
+                            {'label': 'No output before pop + at most',
+                             'value': 'no_output_before_pop_at_most'},
+                            {'label': 'No output before pop + pushed once',
+                             'value': 'no_output_before_pop_pushed_once'},
+                            {'label': 'No output before pop + at most + pushed once',
+                             'value': 'no_output_before_pop_at_most_pushed_once'},
+                        ],
+                        value='no_output_before_pop',
+                        labelStyle={'display': 'inline-block', 'margin-left': '20px'},
+                        style={'text-align': "center"},
+                        inputStyle={"margin-right": "5px"},
+                        id='category_1'
+                    ),
+                    html.H5("Choose second category:", style={"margin-top": "15px", "margin-bottom": "10px",
+                                                              "text-align": "center"}),
+                    dcc.RadioItems(
+                        options=[
+                            {'label': 'No output before pop', 'value': 'no_output_before_pop'},
+                            {'label': 'No output before pop + at most',
+                             'value': 'no_output_before_pop_at_most'},
+                            {'label': 'No output before pop + pushed once',
+                             'value': 'no_output_before_pop_pushed_once'},
+                            {'label': 'No output before pop + at most + pushed once',
+                             'value': 'no_output_before_pop_at_most_pushed_once'},
+                        ],
+                        value='no_output_before_pop_at_most_pushed_once',
+                        labelStyle={'display': 'inline-block', 'margin-left': '20px'},
+                        style={'text-align': "center"},
+                        inputStyle={"margin-right": "5px"},
+                        id='category_2'
+                    )
+                ],
+                    className=" pretty_container five columns"),
                 html.Div(
                     [
-                        html.H5("Filter by relation between number of necessary instructions divided by initial number of instructions:",
-                                style={"margin-top" : "15px", "margin-bottom": "30px", "text-align" : "center"}),
-                        dcc.RangeSlider(
-                            marks={i: '{}%'.format(i*10) for i in range(0, 11)},
-                            min=0,
-                            max=10,
-                            value=[0, 10],
-                            id='range',
-                            allowCross=False
-                        )
-                    ],
-                    className="pretty_container five columns"),
-                html.Div(
-                    [
-                        dcc.Loading(dcc.Graph(id='encoding-total-times'))
+                        dcc.Loading(dcc.Graph(id='comparison-times'))
                     ],
                     className="pretty_container seven columns"),
             ],
             className="row flex-display",
         ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.H5("Choose comparison filter:",
+                                style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
+                        dcc.RadioItems(
+                            options=[
+                                {'label': 'Initial program length', 'value': 'init_progr_len'},
+                                {'label': 'Relation between program length lower bound and initial '
+                                          'program length', 'value': 'initial_size_relation'},
+                                {'label': 'Number of necessary PUSHx instructions',
+                                 'value': 'number_of_necessary_push'},
+                                {'label': 'Number of necessary uninterpreted instructions',
+                                 'value': 'number_of_necessary_uninterpreted_instructions'},
+                                {'label': 'Relation between number of necessary PUSHx instructions and '
+                                          'initial program length', 'value': 'push_per_initial'},
+                                {'label': 'Relation between number of necessary uninterpreted instructions and '
+                                          'initial program length', 'value': 'uninterpreted_per_initial'},
+                                {'label': 'Relation between number of necessary PUSHx instructions and '
+                                          'program length lower bound', 'value': 'push_per_expected'},
+                                {'label': 'Relation between number of necessary uninterpreted instructions and '
+                                          'program length lower bound', 'value': 'uninterpreted_per_expected'},
+                            ],
+                            value='init_progr_len',
+                            labelStyle={'display': 'inline-block', 'margin-left': '20px'},
+                            style={'text-align': "center"},
+                            inputStyle={"margin-right": "5px"},
+                            id='comparison'
+                        ),
+                    ],
+                    className="pretty_container five columns"),
+                html.Div(
+                    [
+                        dcc.Loading(dcc.Graph(id='comparison-gas'))
+                    ],
+                    className="pretty_container seven columns"),
+            ],
+            className="row flex-display", )
     ],
     id="mainContainer",
     style={"display": "flex", "flex-direction": "column"},
@@ -136,23 +208,13 @@ app.layout = html.Div(
 
 
 @app.callback([Output('encoding-time', 'figure'), Output('encoding-gas', 'figure'),
-               Output('encoding-statistics', 'figure'), Output('encoding-total-times', 'figure')],
-              [Input('solver', 'value'), Input('encoding', 'value'), Input('range', 'value')])
-def update_stage_one(selected_solvers, selected_encodings, selected_range):
-    ctx = dash.callback_context
-
-    change = ctx.triggered[0]['prop_id'].split('.')[0]
-
-    range_figure = plot_total_times(selected_range, selected_solvers, selected_encodings)
-
-    # If we only change the range, then only the last figure must be updated.
-    if change == "range":
-        return dash.no_update, dash.no_update, dash.no_update, range_figure
-    else:
-        time_figure = plot_time(selected_solvers, selected_encodings)
-        gas_figure = plot_gas(selected_solvers, selected_encodings)
-        statistics_figure = plot_statistics(selected_solvers, selected_encodings)
-        return time_figure, gas_figure, statistics_figure, range_figure
+               Output('encoding-statistics', 'figure')],
+              [Input('solver', 'value'), Input('encoding', 'value')])
+def update_stage_one(selected_solvers, selected_encodings):
+    time_figure = plot_time(selected_solvers, selected_encodings)
+    gas_figure = plot_gas(selected_solvers, selected_encodings)
+    statistics_figure = plot_statistics(selected_solvers, selected_encodings)
+    return time_figure, gas_figure, statistics_figure
 
 
 server = app.server
