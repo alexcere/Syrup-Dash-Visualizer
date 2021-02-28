@@ -116,29 +116,10 @@ app.layout = html.Div(
         html.Div(
             [
                 html.Div([
-                    html.H5("Choose first category:", style={"margin-top": "15px", "margin-bottom": "10px",
+                    html.H5("Choose category to compare against no output before pop:", style={"margin-top": "15px", "margin-bottom": "10px",
                                                              "text-align": "center"}),
                     dcc.RadioItems(
                         options=[
-                            {'label': 'No output before pop', 'value': 'no_output_before_pop'},
-                            {'label': 'No output before pop + at most',
-                             'value': 'no_output_before_pop_at_most'},
-                            {'label': 'No output before pop + pushed once',
-                             'value': 'no_output_before_pop_pushed_once'},
-                            {'label': 'No output before pop + at most + pushed once',
-                             'value': 'no_output_before_pop_at_most_pushed_once'},
-                        ],
-                        value='no_output_before_pop',
-                        labelStyle={'display': 'inline-block', 'margin-left': '20px'},
-                        style={'text-align': "center"},
-                        inputStyle={"margin-right": "5px"},
-                        id='category_1'
-                    ),
-                    html.H5("Choose second category:", style={"margin-top": "15px", "margin-bottom": "10px",
-                                                              "text-align": "center"}),
-                    dcc.RadioItems(
-                        options=[
-                            {'label': 'No output before pop', 'value': 'no_output_before_pop'},
                             {'label': 'No output before pop + at most',
                              'value': 'no_output_before_pop_at_most'},
                             {'label': 'No output before pop + pushed once',
@@ -150,57 +131,46 @@ app.layout = html.Div(
                         labelStyle={'display': 'inline-block', 'margin-left': '20px'},
                         style={'text-align': "center"},
                         inputStyle={"margin-right": "5px"},
-                        id='category_2'
-                    )
+                        id='category_1'
+                    ),
+                    html.H5("Choose comparison filter:",
+                            style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
+                    dcc.RadioItems(
+                        options=[
+                            {'label': 'Initial program length', 'value': 'init_progr_len'},
+                            {'label': 'Relation between program length lower bound and initial '
+                                      'program length', 'value': 'initial_size_relation'},
+                            {'label': 'Number of necessary PUSHx instructions',
+                             'value': 'number_of_necessary_push'},
+                            {'label': 'Number of necessary uninterpreted instructions',
+                             'value': 'number_of_necessary_uninterpreted_instructions'},
+                            {'label': 'Relation between number of necessary PUSHx instructions and '
+                                      'initial program length', 'value': 'push_per_initial'},
+                            {'label': 'Relation between number of necessary uninterpreted instructions and '
+                                      'initial program length', 'value': 'uninterpreted_per_initial'},
+                            {'label': 'Relation between number of necessary PUSHx instructions and '
+                                      'program length lower bound', 'value': 'push_per_expected'},
+                            {'label': 'Relation between number of necessary uninterpreted instructions and '
+                                      'program length lower bound', 'value': 'uninterpreted_per_expected'},
+                        ],
+                        value='init_progr_len',
+                        labelStyle={'display': 'inline-block', 'margin-left': '20px'},
+                        style={'text-align': "center"},
+                        inputStyle={"margin-right": "5px"},
+                        id='comparison'
+                    ),
                 ],
                     className=" pretty_container five columns"),
                 html.Div(
                     [
+                        html.H4("Comparison between two encodings according to static parameters",
+                                style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
                         dcc.Loading(dcc.Graph(id='comparison-times'))
                     ],
                     className="pretty_container seven columns"),
             ],
             className="row flex-display",
         ),
-        html.Div(
-            [
-                html.Div(
-                    [
-                        html.H5("Choose comparison filter:",
-                                style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
-                        dcc.RadioItems(
-                            options=[
-                                {'label': 'Initial program length', 'value': 'init_progr_len'},
-                                {'label': 'Relation between program length lower bound and initial '
-                                          'program length', 'value': 'initial_size_relation'},
-                                {'label': 'Number of necessary PUSHx instructions',
-                                 'value': 'number_of_necessary_push'},
-                                {'label': 'Number of necessary uninterpreted instructions',
-                                 'value': 'number_of_necessary_uninterpreted_instructions'},
-                                {'label': 'Relation between number of necessary PUSHx instructions and '
-                                          'initial program length', 'value': 'push_per_initial'},
-                                {'label': 'Relation between number of necessary uninterpreted instructions and '
-                                          'initial program length', 'value': 'uninterpreted_per_initial'},
-                                {'label': 'Relation between number of necessary PUSHx instructions and '
-                                          'program length lower bound', 'value': 'push_per_expected'},
-                                {'label': 'Relation between number of necessary uninterpreted instructions and '
-                                          'program length lower bound', 'value': 'uninterpreted_per_expected'},
-                            ],
-                            value='init_progr_len',
-                            labelStyle={'display': 'inline-block', 'margin-left': '20px'},
-                            style={'text-align': "center"},
-                            inputStyle={"margin-right": "5px"},
-                            id='comparison'
-                        ),
-                    ],
-                    className="pretty_container five columns"),
-                html.Div(
-                    [
-                        dcc.Loading(dcc.Graph(id='comparison-gas'))
-                    ],
-                    className="pretty_container seven columns"),
-            ],
-            className="row flex-display", )
     ],
     id="mainContainer",
     style={"display": "flex", "flex-direction": "column"},
@@ -215,6 +185,12 @@ def update_stage_one(selected_solvers, selected_encodings):
     gas_figure = plot_gas(selected_solvers, selected_encodings)
     statistics_figure = plot_statistics(selected_solvers, selected_encodings)
     return time_figure, gas_figure, statistics_figure
+
+
+@app.callback(Output('comparison-times', 'figure'),
+              [Input('category_1', 'value'), Input('comparison', 'value')])
+def update_comparison(category, comparison):
+    return plot_comparison("no_output_before_pop", category, comparison)
 
 
 server = app.server

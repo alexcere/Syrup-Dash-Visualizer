@@ -71,3 +71,36 @@ def plot_statistics(folder_name, encodings):
         barmode='stack',
     )
     return fig
+
+
+def select_comparison(df, comparison_category):
+    if comparison_category == "init_progr_len":
+        return df[comparison_category].to_numpy()
+    elif comparison_category == "initial_size_relation":
+        return df[comparison_category].to_numpy()
+    elif comparison_category == "number_of_necessary_push":
+        return df[comparison_category].to_numpy()
+    elif comparison_category == "number_of_necessary_uninterpreted_instructions":
+        return df[comparison_category].to_numpy()
+    elif comparison_category == "push_per_initial":
+        return df["number_of_necessary_push"].to_numpy() / df["init_progr_len"].to_numpy()
+    elif comparison_category == "uninterpreted_per_initial":
+        return df["number_of_necessary_uninterpreted_instructions"].to_numpy() / df["init_progr_len"].to_numpy()
+    elif comparison_category == "push_per_expected":
+        expected_size = np.array(list(map(lambda x: 1 if x == 0 else x, df['inferred_size'])))
+        return df["number_of_necessary_push"].to_numpy() / expected_size
+    elif comparison_category == "uninterpreted_per_expected":
+        expected_size = np.array(list(map(lambda x: 1 if x == 0 else x, df['inferred_size'])))
+        return df["number_of_necessary_uninterpreted_instructions"].to_numpy() / expected_size
+
+
+def plot_comparison(cat1, cat2, relation):
+    csv_name1 = str(DATA_PATH) + "/" + "comparison_" + cat1 + "_" + cat2 + ".csv"
+    csv_name2 = str(DATA_PATH) + "/" + "comparison_" + cat2 + "_" + cat1 + ".csv"
+    y1 = select_comparison(pd.read_csv(csv_name1), relation)
+    y2 = select_comparison(pd.read_csv(csv_name2), relation)
+    fig = go.Figure()
+    fig.add_trace(go.Box(y=y1, name="Default encoding works better"))
+    fig.add_trace(go.Box(y=y2, name="Selected encoding works better"))
+    fig.update_layout(yaxis_title="Comparison between encodings")
+    return fig
