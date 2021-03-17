@@ -116,8 +116,9 @@ app.layout = html.Div(
         html.Div(
             [
                 html.Div([
-                    html.H5("Choose category to compare against no output before pop:", style={"margin-top": "15px", "margin-bottom": "10px",
-                                                             "text-align": "center"}),
+                    html.H5("Choose category to compare against no output before pop:",
+                            style={"margin-top": "15px", "margin-bottom": "10px",
+                                   "text-align": "center"}),
                     dcc.RadioItems(
                         options=[
                             {'label': 'No output before pop + at most',
@@ -171,6 +172,32 @@ app.layout = html.Div(
             ],
             className="row flex-display",
         ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.H5("Choose parameter value to compare:",
+                                style={"margin-top": "15px", "margin-bottom": "10px",
+                                       "text-align": "center"}),
+                        dcc.Interval(id='parameter-selection')
+                    ],
+                    className="pretty_container seven columns"
+                ),
+                html.Div(
+                    [
+                        dcc.Loading(dcc.Graph(id='parameter-times'))
+                    ],
+                    className="pretty_container seven columns"
+                ),
+                html.Div(
+                    [
+                        dcc.Loading(dcc.Graph(id='parameter-gas'))
+                    ],
+                    className="pretty_container seven columns"
+                )
+            ],
+            className="row flex-display"
+        )
     ],
     id="mainContainer",
     style={"display": "flex", "flex-direction": "column"},

@@ -100,7 +100,7 @@ def plot_comparison(cat1, cat2, relation):
     y1 = select_comparison(pd.read_csv(csv_name1), relation)
     y2 = select_comparison(pd.read_csv(csv_name2), relation)
     fig = go.Figure()
-    fig.add_trace(go.Box(y=y1, name="Default encoding works better"))
-    fig.add_trace(go.Box(y=y2, name="Selected encoding works better"))
+    fig.add_trace(go.Box(y=y1, name="Default encoding works better", boxpoints='all', marker_size=3))
+    fig.add_trace(go.Box(y=y2, name="Selected encoding works better", boxpoints='all', marker_size=3))
     fig.update_layout(yaxis_title="Comparison between encodings")
     return fig
