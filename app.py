@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Import required libraries
 
 from plots import *
@@ -18,7 +19,6 @@ app.title = "Syrup Data Visualizer"
 # Create app layout
 app.layout = html.Div(
     [
-        dcc.Store(id="current-gray"),
         # empty Div to trigger javascript file for graph resizing
         html.Div(id="output-clientside"),
         html.Div(
@@ -174,30 +174,73 @@ app.layout = html.Div(
         ),
         html.Div(
             [
-                html.Div(
-                    [
-                        html.H5("Choose parameter value to compare:",
-                                style={"margin-top": "15px", "margin-bottom": "10px",
-                                       "text-align": "center"}),
-                        dcc.Interval(id='parameter-selection')
-                    ],
-                    className="pretty_container seven columns"
-                ),
-                html.Div(
-                    [
-                        dcc.Loading(dcc.Graph(id='parameter-times'))
-                    ],
-                    className="pretty_container seven columns"
-                ),
-                html.Div(
-                    [
-                        dcc.Loading(dcc.Graph(id='parameter-gas'))
-                    ],
-                    className="pretty_container seven columns"
-                )
+                html.H3("Stage two: Determining the most suitable timeout"),
             ],
-            className="row flex-display"
-        )
+            style={"margin-top": "25px", "margin-bottom": "25px", "text-align": "center"},
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.H5("Choose solver option:",
+                                style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
+                        dcc.Checklist(
+                            options=[
+                                {'label': 'Combined results', 'value': 'combined'},
+                                {'label': 'Barcelogic', 'value': 'barcelogic'},
+                                {'label': 'Z3', 'value': 'z3'},
+                                {'label': 'OptiMathSAT', 'value': 'oms'}
+                            ],
+                            value=['combined', 'barcelogic', 'z3', 'oms'],
+                            labelStyle={'display': 'inline-block', 'margin-left': '20px'},
+                            style={'text-align': "center"},
+                            inputStyle={"margin-right": "5px"},
+                            id='solver-stage-two'
+                        ),
+                        html.H5("Choose timeout option:",
+                                style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
+                        dcc.Checklist(
+                            options=[
+                                {'label': '1 s', 'value': '1s'},
+                                {'label': '10 s', 'value': '10s'},
+                                {'label': '15 s', 'value': '15s'},
+                                {'label': '30 s', 'value': '30s'},
+                                {'label': '60 s', 'value': '60s'},
+                            ],
+                            # value=['initial_configuration', 'at_most', 'pushed_once', 'no_output_before_pop', 'alternative_gas_model'],
+                            value=['1s', '30s', '60s'],
+                            labelStyle={'display': 'inline-block', 'margin-left': '20px'},
+                            style={'text-align': "center"},
+                            inputStyle={"margin-right": "5px"},
+                            id='timeout-stage-two'
+                        ),
+                    ],
+                    className="pretty_container five columns"),
+                html.Div(
+                    [
+                        dcc.Loading(dcc.Graph(id='encoding-time-stage-two'))
+                    ],
+                    className="pretty_container seven columns"),
+            ],
+            className="row flex-display",
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        dcc.Loading(dcc.Graph(id='encoding-statistics-stage-two'))
+                    ],
+                    className="pretty_container five columns"
+                ),
+                html.Div(
+                    [
+                        dcc.Loading(dcc.Graph(id='encoding-gas-stage-two'))
+                    ],
+                    className="pretty_container seven columns"
+                ),
+            ],
+            className="row flex-display",
+        ),
     ],
     id="mainContainer",
     style={"display": "flex", "flex-direction": "column"},
@@ -218,6 +261,17 @@ def update_stage_one(selected_solvers, selected_encodings):
               [Input('category_1', 'value'), Input('comparison', 'value')])
 def update_comparison(category, comparison):
     return plot_comparison("no_output_before_pop", category, comparison)
+
+
+@app.callback([Output('encoding-time-stage-two', 'figure'), Output('encoding-gas-stage-two', 'figure'),
+               Output('encoding-statistics-stage-two', 'figure')],
+              [Input('solver-stage-two', 'value'), Input('timeout-stage-two', 'value')])
+def update_stage_two(selected_solvers, selected_timeout):
+    selected_timeout = sorted(selected_timeout, key=lambda t: t[:-2])
+    time_figure = plot_time(selected_solvers, selected_timeout)
+    gas_figure = plot_gas(selected_solvers, selected_timeout)
+    statistics_figure = plot_statistics(selected_solvers, selected_timeout)
+    return time_figure, gas_figure, statistics_figure
 
 
 server = app.server
