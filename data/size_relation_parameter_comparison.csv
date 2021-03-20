@@ -1,0 +1,5 @@
+,name,time
+0,no_output_before_pop_pushed_once,653.9561333333332
+1,no_output_before_pop_at_most,685.7359333333334
+2,no_output_before_pop,695.2726
+3,no_output_before_pop_at_most_pushed_once,702.9554000000002

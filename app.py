@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 # Import required libraries
 
 from plots import *
@@ -14,6 +14,12 @@ DATA_PATH = (PATH.joinpath("data")).resolve()
 app = dash.Dash(
     __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}]
 )
+
+labels_configuration = {'init': 'Initial program length <= 15', 'size_relation':
+    'Relation between program length lower bound and initial program length >= 0.7',
+                        'number_push': 'Number of necessary PUSHx instructions <= 3',
+                        'uninterpreted_per_initial': 'Relation between number of necessary uninterpreted instructions '
+                                                     'and initial program length >= 0.25'}
 
 app.title = "Syrup Data Visualizer"
 # Create app layout
@@ -46,6 +52,12 @@ app.layout = html.Div(
         ),
         html.Div(
             [
+                html.H4("1.1 Initial study on different encodings"),
+            ],
+            style={"margin-top": "25px", "margin-bottom": "25px", "text-align": "center"},
+        ),
+        html.Div(
+            [
                 html.Div(
                     [
                         html.H5("Choose solver option:",
@@ -73,7 +85,6 @@ app.layout = html.Div(
                                 {'label': 'No output before a POP instruction', 'value': 'no_output_before_pop'},
                                 {'label': 'Alternative gas model', 'value': 'alternative_gas_model'},
                             ],
-                            # value=['initial_configuration', 'at_most', 'pushed_once', 'no_output_before_pop', 'alternative_gas_model'],
                             value=['initial_configuration', 'at_most'],
                             labelStyle={'display': 'inline-block', 'margin-left': '20px'},
                             style={'text-align': "center"},
@@ -109,7 +120,7 @@ app.layout = html.Div(
         ),
         html.Div(
             [
-                html.H4("Determine possible parameters that affect the encoding"),
+                html.H4("1.2 Determine possible parameters that affect the encoding"),
             ],
             style={"margin-top": "25px", "margin-bottom": "25px", "text-align": "center"},
         ),
@@ -174,6 +185,109 @@ app.layout = html.Div(
         ),
         html.Div(
             [
+                html.H4("1.3 Study configurations in which selected encoding seems to work better"),
+            ],
+            style={"margin-top": "25px", "margin-bottom": "25px", "text-align": "center"},
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.H5("Choose configuration option:",
+                                style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
+                        dcc.RadioItems(
+                            options=[
+                                {'label': labels_configuration['init'], 'value': 'init'},
+                                {'label': labels_configuration['size_relation'], 'value': 'size_relation'},
+                                {'label': labels_configuration['number_push'], 'value': 'number_push'},
+                                {'label': labels_configuration['uninterpreted_per_initial'],
+                                 'value': 'uninterpreted_per_initial'}
+                            ],
+                            value='init',
+                            labelStyle={'display': 'inline-block', 'margin-left': '20px'},
+                            style={'text-align': "center"},
+                            inputStyle={"margin-right": "5px"},
+                            id='configuration-selection'
+                        ),
+                    ],
+                    className="pretty_container five columns"),
+                html.Div(
+                    [
+                        dcc.Loading(dcc.Graph(id='comparison-total-time'))
+                    ],
+                    className="pretty_container seven columns"),
+            ],
+            className="row flex-display",
+        ),
+        html.Div(
+            [
+                html.H3("1.4 Final comparison between different steps"),
+            ],
+            style={"margin-top": "25px", "margin-bottom": "25px", "text-align": "center"},
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.H5("Choose solver option:",
+                                style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
+                        dcc.Checklist(
+                            options=[
+                                {'label': 'Combined results', 'value': 'combined'},
+                                {'label': 'Barcelogic', 'value': 'barcelogic'},
+                                {'label': 'Z3', 'value': 'z3'},
+                                {'label': 'OptiMathSAT', 'value': 'oms'}
+                            ],
+                            value=['combined', 'barcelogic', 'z3', 'oms'],
+                            labelStyle={'display': 'inline-block', 'margin-left': '20px'},
+                            style={'text-align': "center"},
+                            inputStyle={"margin-right": "5px"},
+                            id='solver-final-stage-one'
+                        ),
+                        html.H5("Choose encoding option:",
+                                style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
+                        dcc.Checklist(
+                            options=[
+                                {'label': 'Initial configuration', 'value': 'initial_configuration'},
+                                {'label': 'No output before a POP instruction', 'value': 'no_output_before_pop'},
+                                {'label': 'Final selected encoding (no output before pop + '
+                                          'pushed once in certain situations)', 'value': '60s'}
+                            ],
+                            value=['initial_configuration', 'no_output_before_pop', '60s'],
+                            labelStyle={'display': 'inline-block', 'margin-left': '20px'},
+                            style={'text-align': "center"},
+                            inputStyle={"margin-right": "5px"},
+                            id='encoding-final-stage-one'
+                        ),
+                    ],
+                    className="pretty_container five columns"),
+                html.Div(
+                    [
+                        dcc.Loading(dcc.Graph(id='time-final-stage-one'))
+                    ],
+                    className="pretty_container seven columns"),
+            ],
+            className="row flex-display",
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        dcc.Loading(dcc.Graph(id='statistics-final-stage-one'))
+                    ],
+                    className="pretty_container five columns"
+                ),
+                html.Div(
+                    [
+                        dcc.Loading(dcc.Graph(id='gas-final-stage-one'))
+                    ],
+                    className="pretty_container seven columns"
+                ),
+            ],
+            className="row flex-display",
+        ),
+        html.Div(
+            [
                 html.H3("Stage two: Determining the most suitable timeout"),
             ],
             style={"margin-top": "25px", "margin-bottom": "25px", "text-align": "center"},
@@ -207,7 +321,6 @@ app.layout = html.Div(
                                 {'label': '30 s', 'value': '30s'},
                                 {'label': '60 s', 'value': '60s'},
                             ],
-                            # value=['initial_configuration', 'at_most', 'pushed_once', 'no_output_before_pop', 'alternative_gas_model'],
                             value=['1s', '30s', '60s'],
                             labelStyle={'display': 'inline-block', 'margin-left': '20px'},
                             style={'text-align': "center"},
@@ -263,11 +376,26 @@ def update_comparison(category, comparison):
     return plot_comparison("no_output_before_pop", category, comparison)
 
 
+@app.callback(Output('comparison-total-time', 'figure'), Input('configuration-selection', 'value'))
+def update_configuration_study(selected_parameter):
+    return plot_configuration_comparison(selected_parameter, labels_configuration[selected_parameter])
+
+
+@app.callback([Output('time-final-stage-one', 'figure'), Output('gas-final-stage-one', 'figure'),
+               Output('statistics-final-stage-one', 'figure')],
+              [Input('solver-final-stage-one', 'value'), Input('encoding-final-stage-one', 'value')])
+def update_stage_one_final_comparison(selected_solvers, selected_encodings):
+    time_figure = plot_time(selected_solvers, selected_encodings)
+    gas_figure = plot_gas(selected_solvers, selected_encodings)
+    statistics_figure = plot_statistics(selected_solvers, selected_encodings)
+    return time_figure, gas_figure, statistics_figure
+
+
 @app.callback([Output('encoding-time-stage-two', 'figure'), Output('encoding-gas-stage-two', 'figure'),
                Output('encoding-statistics-stage-two', 'figure')],
               [Input('solver-stage-two', 'value'), Input('timeout-stage-two', 'value')])
 def update_stage_two(selected_solvers, selected_timeout):
-    selected_timeout = sorted(selected_timeout, key=lambda t: t[:-2])
+    selected_timeout = sorted(selected_timeout, key=lambda t: t[:-1])
     time_figure = plot_time(selected_solvers, selected_timeout)
     gas_figure = plot_gas(selected_solvers, selected_timeout)
     statistics_figure = plot_statistics(selected_solvers, selected_timeout)

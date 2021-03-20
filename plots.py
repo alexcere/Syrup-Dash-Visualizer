@@ -4,6 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 import pandas as pd
 import pathlib
+import plotly.express as px
 
 PATH = pathlib.Path(__file__).parent
 DATA_PATH = (PATH.joinpath("data")).resolve()
@@ -103,4 +104,12 @@ def plot_comparison(cat1, cat2, relation):
     fig.add_trace(go.Box(y=y1, name="Default encoding works better", boxpoints='all', marker_size=3))
     fig.add_trace(go.Box(y=y2, name="Selected encoding works better", boxpoints='all', marker_size=3))
     fig.update_layout(yaxis_title="Comparison between encodings")
+    return fig
+
+
+def plot_configuration_comparison(category_comparison, axis_label):
+    csv_name = str(DATA_PATH) + "/" + category_comparison + "_parameter_comparison.csv"
+    df = pd.read_csv(csv_name)
+    fig = px.bar(df, x="name", y="time")
+    fig.update_layout(yaxis_title=axis_label)
     return fig
