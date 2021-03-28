@@ -354,6 +354,63 @@ app.layout = html.Div(
             ],
             className="row flex-display",
         ),
+        html.Div(
+            [
+                html.H3("Stage three: Comparison with CAV benchmark"),
+            ],
+            style={"margin-top": "25px", "margin-bottom": "25px", "text-align": "center"},
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.H5("Choose solver option:",
+                                style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
+                        dcc.RadioItems(
+                            options=[
+                                {'label': 'Combined results', 'value': 'combined'},
+                                {'label': 'Barcelogic', 'value': 'barcelogic'},
+                                {'label': 'Z3', 'value': 'z3'},
+                                {'label': 'OptiMathSAT', 'value': 'oms'}
+                            ],
+                            value='combined',
+                            labelStyle={'display': 'inline-block', 'margin-left': '20px'},
+                            style={'text-align': "center"},
+                            inputStyle={"margin-right": "5px"},
+                            id='solver-stage-three'
+                        ),
+                    ],
+                    className="pretty_container five columns"),
+                html.Div(
+                    [
+                        dcc.Loading(dcc.Graph(id='statistics-stage-three'))
+                    ],
+                    className="pretty_container seven columns"),
+            ],
+            className="row flex-display",
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        dcc.Loading(dcc.Graph(id='gas-comparison-stage-three'))
+                    ],
+                    className="pretty_container twelve columns"
+                ),
+            ],
+            className="row flex-display",
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        dcc.Loading(dcc.Graph(id='time-comparison-stage-three'))
+                    ],
+                    className="pretty_container twelve columns"
+                ),
+            ],
+            className="row flex-display",
+        ),
     ],
     id="mainContainer",
     style={"display": "flex", "flex-direction": "column"},
@@ -400,6 +457,14 @@ def update_stage_two(selected_solvers, selected_timeout):
     gas_figure = plot_gas(selected_solvers, selected_timeout)
     statistics_figure = plot_statistics(selected_solvers, selected_timeout)
     return time_figure, gas_figure, statistics_figure
+
+
+@app.callback([Output('statistics-stage-three', 'figure'), Output('gas-comparison-stage-three', 'figure'),
+               Output('time-comparison-stage-three', 'figure')],
+              Input('solver-stage-three', 'value'))
+def update_stage_three(solver):
+    statistics_figure = plot_statistics_pie_chart(solver)
+    return statistics_figure, go.Figure(), go.Figure()
 
 
 server = app.server

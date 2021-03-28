@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import pandas as pd
 import pathlib
 import plotly.express as px
+from plotly.subplots import make_subplots
 
 PATH = pathlib.Path(__file__).parent
 DATA_PATH = (PATH.joinpath("data")).resolve()
@@ -113,3 +114,36 @@ def plot_configuration_comparison(category_comparison, axis_label):
     fig = px.bar(df, x="name", y="time")
     fig.update_layout(yaxis_title=axis_label)
     return fig
+
+
+def plot_statistics_pie_chart(solver):
+    syrup_csv_name = str(DATA_PATH) + "/final_encoding_" + solver + ".csv"
+    cav_csv_name = str(DATA_PATH) + "/CAV_" + solver + ".csv"
+    labels = ['already_optimal', 'discovered_optimal', 'non_optimal_with_less_gas',
+              'non_optimal_with_same_gas', 'no_solution_found']
+
+    cav_df = pd.read_csv(cav_csv_name).sum()
+    syrup_df = pd.read_csv(syrup_csv_name).sum()
+
+    cav_values = [cav_df[label] for label in labels]
+    syrup_values = [syrup_df[label] for label in labels]
+
+    fig = make_subplots(rows=1, cols=2, specs=[[{'type': 'domain'}, {'type': 'domain'}]])
+    fig.add_trace(go.Pie(labels=labels, values=cav_values, name="Previous version"),
+                  1, 1)
+    fig.add_trace(go.Pie(labels=labels, values=syrup_values, name="New version"),
+                  1, 2)
+
+    # Use `hole` to create a donut-like pie chart
+    fig.update_traces(hole=.4, hoverinfo="label+percent+name")
+
+    fig.update_layout(
+        title_text="Comparison between 15 min previous version vs 10s new version",
+        # Add annotations in the center of the donut pies.
+        annotations=[dict(text='15m', x=0.18, y=0.5, font_size=20, showarrow=False),
+                     dict(text='10s', x=0.82, y=0.5, font_size=20, showarrow=False)])
+    return fig
+
+
+def plot_bar_comparison(solver, category_name):
+    return go.Figure()
