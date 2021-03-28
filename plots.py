@@ -9,6 +9,31 @@ from plotly.subplots import make_subplots
 
 PATH = pathlib.Path(__file__).parent
 DATA_PATH = (PATH.joinpath("data")).resolve()
+encoding_names = {'initial_configuration': "Initial configuration",
+                  "no_output_before_pop": "Restricted opcodes<br>before POP",
+                  'at_most': "Uninterpreted opcodes<br>at most once",
+                  'pushed_once': "Numerical values pushed<br>at least once",
+                  "alternative_gas_model": "Alternative gas model",
+                  "final_encoding": "Final encoding",
+                  "60s": "60s", "30s": "30s", "15s": "15s", "10s": "10s", "1s": "1s",
+                  "no_output_before_pop_at_most": "Rest. bef. POP +<br> Unint. opcode at most",
+                  "no_output_before_pop_pushed_once": "Rest. bef. POP +<br> Num. value once",
+                  "no_output_before_pop_at_most_pushed_once": "Rest. bef. POP +<br> Unint. opcode at most"
+                                                              "+<br> Num. value once"}
+
+optimality_names = {'already_optimal': "Already optimal", 'discovered_optimal': "Discovered optimal",
+                    'non_optimal_with_less_gas': "Non optimal<br> with less gas",
+                    'non_optimal_with_same_gas': "Non optimal<br> with same gas",
+                    'no_solution_found': "No solution found"}
+
+encoding_names_abbreviated = {'initial_configuration': "initial", "no_output_before_pop": "restrict POP",
+                              'at_most': "at most", 'pushed_once': "values pushed",
+                              "alternative_gas_model": "alt. gas model", "60s": "60s", "30s": "30s", "15s": "15s",
+                              "10s": "10s", "1s": "1s", "final_encoding": "final"}
+
+analyzed_parameters_names = {'saved_gas': "Gas saved", 'time': "Time in min"}
+
+solver_name_abbreviated = {"combined": "port", "z3": "z3", "oms": "oms", "barcelogic": "bclg"}
 
 
 def plot_time(folder_name, encodings):
@@ -22,7 +47,7 @@ def plot_time(folder_name, encodings):
             arr = df['time'].to_numpy() / 60
             times = np.append(times, arr)
             labels.extend([name] * len(arr))
-        fig.add_trace(go.Box(y=times, x=labels, name=encoding))
+        fig.add_trace(go.Box(y=times, x=labels, name=encoding_names[encoding]))
     fig.update_layout(
         yaxis_title='Times per contract (minutes)',
         boxmode='group'  # group together boxes of the different traces for each value of x
@@ -41,7 +66,7 @@ def plot_gas(folder_name, encodings):
             arr = df['saved_gas'].to_numpy()
             times = np.append(times, arr)
             labels.extend([name] * len(arr))
-        fig.add_trace(go.Box(y=times, x=labels, name=encoding))
+        fig.add_trace(go.Box(y=times, x=labels, name=encoding_names[encoding]))
     fig.update_layout(
         yaxis_title='Saved gas per contract',
         boxmode='group'  # group together boxes of the different traces for each value of x
@@ -64,10 +89,10 @@ def plot_statistics(folder_name, encodings):
                 total_sum = 0
                 for other_statistics in statistics:
                     total_sum += df[other_statistics].sum()
-                labels_x.append(name)
-                labels_y.append(encoding)
+                labels_x.append(solver_name_abbreviated[name])
+                labels_y.append(encoding_names_abbreviated[encoding])
                 results.append((df[statistic].sum() * 100) / total_sum)
-        fig.add_trace(go.Bar(y=results, x=[labels_x, labels_y], name=statistic))
+        fig.add_trace(go.Bar(y=results, x=[labels_x, labels_y], name=optimality_names[statistic]))
     fig.update_layout(
         yaxis_title='Comparison in outputs',
         barmode='stack',
@@ -111,7 +136,9 @@ def plot_comparison(cat1, cat2, relation):
 def plot_configuration_comparison(category_comparison, axis_label):
     csv_name = str(DATA_PATH) + "/" + category_comparison + "_parameter_comparison.csv"
     df = pd.read_csv(csv_name)
-    fig = px.bar(df, x="name", y="time")
+    x = [encoding_names[encoding] for encoding in df['name'].to_list()]
+    y = df['time'].to_list()
+    fig = go.Figure(data=[go.Bar(x=x, y=y)])
     fig.update_layout(yaxis_title=axis_label)
     return fig
 
@@ -121,7 +148,7 @@ def plot_statistics_pie_chart(solver):
     cav_csv_name = str(DATA_PATH) + "/CAV_" + solver + ".csv"
     labels = ['already_optimal', 'discovered_optimal', 'non_optimal_with_less_gas',
               'non_optimal_with_same_gas', 'no_solution_found']
-
+    labels_to_desplay = [optimality_names[name] for name in labels]
     cav_df = pd.read_csv(cav_csv_name).sum()
     syrup_df = pd.read_csv(syrup_csv_name).sum()
 
@@ -129,16 +156,16 @@ def plot_statistics_pie_chart(solver):
     syrup_values = [syrup_df[label] for label in labels]
 
     fig = make_subplots(rows=1, cols=2, specs=[[{'type': 'domain'}, {'type': 'domain'}]])
-    fig.add_trace(go.Pie(labels=labels, values=cav_values, name="Previous version"),
+    fig.add_trace(go.Pie(labels=labels_to_desplay, values=cav_values, name="CAV'20 Setup"),
                   1, 1)
-    fig.add_trace(go.Pie(labels=labels, values=syrup_values, name="New version"),
+    fig.add_trace(go.Pie(labels=labels_to_desplay, values=syrup_values, name="New setup"),
                   1, 2)
 
     # Use `hole` to create a donut-like pie chart
     fig.update_traces(hole=.4, hoverinfo="label+percent+name")
 
     fig.update_layout(
-        title_text="Comparison between 15 min previous version vs 10s new version",
+        title_text="Comparison between CAV'20 Setup (15 min) vs New setup (10 s)",
         # Add annotations in the center of the donut pies.
         annotations=[dict(text='15m', x=0.18, y=0.5, font_size=20, showarrow=False),
                      dict(text='10s', x=0.82, y=0.5, font_size=20, showarrow=False)])
@@ -146,4 +173,23 @@ def plot_statistics_pie_chart(solver):
 
 
 def plot_bar_comparison(solver, category_name):
-    return go.Figure()
+    syrup_csv_name = str(DATA_PATH) + "/final_encoding_" + solver + ".csv"
+    cav_csv_name = str(DATA_PATH) + "/CAV_" + solver + ".csv"
+    cav_rows = pd.read_csv(cav_csv_name).to_dict('records')
+    syrup_rows = pd.read_csv(syrup_csv_name).to_dict('records')
+    labels = list(range(len(syrup_rows)))
+    cav_values = []
+    syrup_values = []
+    for i, cav_row in enumerate(cav_rows):
+        block_name = cav_row['name']
+        syrup_row = list(filter(lambda row: row['name'] == block_name, syrup_rows))[0]
+        if category_name == "time":
+            cav_values.append(cav_row[category_name] / 60)
+            syrup_values.append(syrup_row[category_name] / 60)
+        else:
+            cav_values.append(cav_row[category_name])
+            syrup_values.append(syrup_row[category_name])
+    fig = go.Figure(data=[go.Bar(name="CAV'20 Setup", x=labels, y=cav_values),
+                          go.Bar(name='New Setup', x=labels, y=syrup_values)])
+    fig.update_layout(barmode='group', yaxis_title=analyzed_parameters_names[category_name] + ' per contract',)
+    return fig

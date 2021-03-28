@@ -16,10 +16,15 @@ app = dash.Dash(
 )
 
 labels_configuration = {'init': 'Initial program length <= 15', 'size_relation':
-    'Relation between program length lower bound and initial program length >= 0.7',
+                        'Relation between program length lower bound and initial program length >= 0.7',
                         'number_push': 'Number of necessary PUSHx instructions <= 3',
                         'uninterpreted_per_initial': 'Relation between number of necessary uninterpreted instructions '
                                                      'and initial program length >= 0.25'}
+labels_configuration_split = {'init': 'Initial program length <= 15', 'size_relation':
+                        'Relation between program length lower bound <br>and initial program length >= 0.7',
+                        'number_push': 'Number of necessary PUSHx instructions <= 3',
+                        'uninterpreted_per_initial': 'Relation between number of necessary uninterpreted instructions '
+                                                     '<br>and initial program length >= 0.25'}
 
 app.title = "Syrup Data Visualizer"
 # Create app layout
@@ -64,7 +69,7 @@ app.layout = html.Div(
                                 style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
                         dcc.Checklist(
                             options=[
-                                {'label': 'Combined results', 'value': 'combined'},
+                                {'label': 'Portfolio results', 'value': 'combined'},
                                 {'label': 'Barcelogic', 'value': 'barcelogic'},
                                 {'label': 'Z3', 'value': 'z3'},
                                 {'label': 'OptiMathSAT', 'value': 'oms'}
@@ -233,7 +238,7 @@ app.layout = html.Div(
                                 style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
                         dcc.Checklist(
                             options=[
-                                {'label': 'Combined results', 'value': 'combined'},
+                                {'label': 'Portfolio results', 'value': 'combined'},
                                 {'label': 'Barcelogic', 'value': 'barcelogic'},
                                 {'label': 'Z3', 'value': 'z3'},
                                 {'label': 'OptiMathSAT', 'value': 'oms'}
@@ -300,7 +305,7 @@ app.layout = html.Div(
                                 style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
                         dcc.Checklist(
                             options=[
-                                {'label': 'Combined results', 'value': 'combined'},
+                                {'label': 'Portfolio results', 'value': 'combined'},
                                 {'label': 'Barcelogic', 'value': 'barcelogic'},
                                 {'label': 'Z3', 'value': 'z3'},
                                 {'label': 'OptiMathSAT', 'value': 'oms'}
@@ -368,7 +373,7 @@ app.layout = html.Div(
                                 style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
                         dcc.RadioItems(
                             options=[
-                                {'label': 'Combined results', 'value': 'combined'},
+                                {'label': 'Portfolio results', 'value': 'combined'},
                                 {'label': 'Barcelogic', 'value': 'barcelogic'},
                                 {'label': 'Z3', 'value': 'z3'},
                                 {'label': 'OptiMathSAT', 'value': 'oms'}
@@ -435,7 +440,7 @@ def update_comparison(category, comparison):
 
 @app.callback(Output('comparison-total-time', 'figure'), Input('configuration-selection', 'value'))
 def update_configuration_study(selected_parameter):
-    return plot_configuration_comparison(selected_parameter, labels_configuration[selected_parameter])
+    return plot_configuration_comparison(selected_parameter, labels_configuration_split[selected_parameter])
 
 
 @app.callback([Output('time-final-stage-one', 'figure'), Output('gas-final-stage-one', 'figure'),
@@ -464,7 +469,9 @@ def update_stage_two(selected_solvers, selected_timeout):
               Input('solver-stage-three', 'value'))
 def update_stage_three(solver):
     statistics_figure = plot_statistics_pie_chart(solver)
-    return statistics_figure, go.Figure(), go.Figure()
+    gas_figure = plot_bar_comparison(solver, "saved_gas")
+    time_figure = plot_bar_comparison(solver, "time")
+    return statistics_figure, gas_figure, time_figure
 
 
 server = app.server
