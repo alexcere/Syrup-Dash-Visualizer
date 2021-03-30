@@ -19,7 +19,8 @@ encoding_names = {'initial_configuration': "Initial configuration",
                   "no_output_before_pop_at_most": "Rest. bef. POP +<br> Unint. opcode at most",
                   "no_output_before_pop_pushed_once": "Rest. bef. POP +<br> Num. value once",
                   "no_output_before_pop_at_most_pushed_once": "Rest. bef. POP +<br> Unint. opcode at most"
-                                                              "+<br> Num. value once"}
+                                                              "+<br> Num. value once",
+                  "final_setup": "Final setup"}
 
 optimality_names = {'already_optimal': "Already optimal", 'discovered_optimal': "Discovered optimal",
                     'non_optimal_with_less_gas': "Non optimal<br> with less gas",
@@ -144,7 +145,7 @@ def plot_configuration_comparison(category_comparison, axis_label):
 
 
 def plot_statistics_pie_chart(solver):
-    syrup_csv_name = str(DATA_PATH) + "/final_encoding_" + solver + ".csv"
+    syrup_csv_name = str(DATA_PATH) + "/final_setup_" + solver + ".csv"
     cav_csv_name = str(DATA_PATH) + "/CAV_" + solver + ".csv"
     labels = ['already_optimal', 'discovered_optimal', 'non_optimal_with_less_gas',
               'non_optimal_with_same_gas', 'no_solution_found']
@@ -173,7 +174,7 @@ def plot_statistics_pie_chart(solver):
 
 
 def plot_bar_comparison(solver, category_name):
-    syrup_csv_name = str(DATA_PATH) + "/final_encoding_" + solver + ".csv"
+    syrup_csv_name = str(DATA_PATH) + "/final_setup_" + solver + ".csv"
     cav_csv_name = str(DATA_PATH) + "/CAV_" + solver + ".csv"
     cav_rows = pd.read_csv(cav_csv_name).to_dict('records')
     syrup_rows = pd.read_csv(syrup_csv_name).to_dict('records')

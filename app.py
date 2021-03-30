@@ -256,9 +256,9 @@ app.layout = html.Div(
                                 {'label': 'Initial configuration', 'value': 'initial_configuration'},
                                 {'label': 'No output before a POP instruction', 'value': 'no_output_before_pop'},
                                 {'label': 'Final selected encoding (no output before pop + '
-                                          'pushed once in certain situations)', 'value': '60s'}
+                                          'pushed once in certain situations)', 'value': 'final_encoding'}
                             ],
-                            value=['initial_configuration', 'no_output_before_pop', '60s'],
+                            value=['initial_configuration', 'no_output_before_pop', 'final_encoding'],
                             labelStyle={'display': 'inline-block', 'margin-left': '20px'},
                             style={'text-align': "center"},
                             inputStyle={"margin-right": "5px"},
