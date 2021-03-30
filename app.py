@@ -440,7 +440,7 @@ def update_comparison(category, comparison):
 
 @app.callback(Output('comparison-total-time', 'figure'), Input('configuration-selection', 'value'))
 def update_configuration_study(selected_parameter):
-    return plot_configuration_comparison(selected_parameter, labels_configuration_split[selected_parameter])
+    return plot_configuration_comparison(selected_parameter)
 
 
 @app.callback([Output('time-final-stage-one', 'figure'), Output('gas-final-stage-one', 'figure'),

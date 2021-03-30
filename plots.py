@@ -128,19 +128,19 @@ def plot_comparison(cat1, cat2, relation):
     y1 = select_comparison(pd.read_csv(csv_name1), relation)
     y2 = select_comparison(pd.read_csv(csv_name2), relation)
     fig = go.Figure()
-    fig.add_trace(go.Box(y=y1, name="Default encoding works better", boxpoints='all', marker_size=3))
-    fig.add_trace(go.Box(y=y2, name="Selected encoding works better", boxpoints='all', marker_size=3))
+    fig.add_trace(go.Box(y=y1, name="Default encoding<br>works better", boxpoints='all', marker_size=3))
+    fig.add_trace(go.Box(y=y2, name="Selected encoding<br>works better", boxpoints='all', marker_size=3))
     fig.update_layout(yaxis_title="Comparison between encodings")
     return fig
 
 
-def plot_configuration_comparison(category_comparison, axis_label):
+def plot_configuration_comparison(category_comparison):
     csv_name = str(DATA_PATH) + "/" + category_comparison + "_parameter_comparison.csv"
     df = pd.read_csv(csv_name)
     x = [encoding_names[encoding] for encoding in df['name'].to_list()]
     y = df['time'].to_list()
     fig = go.Figure(data=[go.Bar(x=x, y=y)])
-    fig.update_layout(yaxis_title=axis_label)
+    fig.update_layout(yaxis_title="Total time in minutes")
     return fig
 
 
@@ -193,4 +193,6 @@ def plot_bar_comparison(solver, category_name):
     fig = go.Figure(data=[go.Bar(name="CAV'20 Setup", x=labels, y=cav_values),
                           go.Bar(name='New Setup', x=labels, y=syrup_values)])
     fig.update_layout(barmode='group', yaxis_title=analyzed_parameters_names[category_name] + ' per contract',)
+    if category_name == "time":
+        fig.update_layout(yaxis_type="log")
     return fig
