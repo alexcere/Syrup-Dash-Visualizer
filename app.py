@@ -84,13 +84,15 @@ app.layout = html.Div(
                                 style={"margin-top": "15px", "margin-bottom": "10px", "text-align": "center"}),
                         dcc.Checklist(
                             options=[
-                                {'label': 'Initial configuration', 'value': 'initial_configuration'},
-                                {'label': 'At most one uninterpreted function', 'value': 'at_most'},
-                                {'label': 'Every numerical value must be pushed', 'value': 'pushed_once'},
-                                {'label': 'No output before a POP instruction', 'value': 'no_output_before_pop'},
-                                {'label': 'Alternative gas model', 'value': 'alternative_gas_model'},
+                                {'label': "Initial configuration",
+                                 'value': 'initial_configuration'},
+                                {'label': 'Uninterpreted opcodes at most once ', 'value': 'at_most'},
+                                {'label': 'Numerical values pushed at least once', 'value': 'pushed_once'},
+                                {'label': 'Restricted opcodes before POP', 'value': 'no_output_before_pop'},
+                                {'label': 'Other gas model', 'value': 'alternative_gas_model'},
                             ],
-                            value=['initial_configuration', 'at_most'],
+                            value=['initial_configuration', 'alternative_gas_model', 'at_most',
+                                   'pushed_once', 'no_output_before_pop'],
                             labelStyle={'display': 'inline-block', 'margin-left': '20px'},
                             style={'text-align': "center"},
                             inputStyle={"margin-right": "5px"},
@@ -137,11 +139,11 @@ app.layout = html.Div(
                                    "text-align": "center"}),
                     dcc.RadioItems(
                         options=[
-                            {'label': 'No output before pop + at most',
+                            {'label': 'Rest. bef. POP + Unint. opcode at most',
                              'value': 'no_output_before_pop_at_most'},
-                            {'label': 'No output before pop + pushed once',
+                            {'label': 'Rest. bef. POP + Num. value once',
                              'value': 'no_output_before_pop_pushed_once'},
-                            {'label': 'No output before pop + at most + pushed once',
+                            {'label': 'Rest. bef. POP + Unint. opcode at most + Num. value once',
                              'value': 'no_output_before_pop_at_most_pushed_once'},
                         ],
                         value='no_output_before_pop_at_most_pushed_once',
@@ -254,9 +256,9 @@ app.layout = html.Div(
                         dcc.Checklist(
                             options=[
                                 {'label': 'Initial configuration', 'value': 'initial_configuration'},
-                                {'label': 'No output before a POP instruction', 'value': 'no_output_before_pop'},
-                                {'label': 'Final selected encoding (no output before pop + '
-                                          'pushed once in certain situations)', 'value': 'final_encoding'}
+                                {'label': 'Restricted opcodes before POP', 'value': 'no_output_before_pop'},
+                                {'label': 'Final encoding (Rest. bef. POP + '
+                                          'Num. value once in certain situations)', 'value': 'final_encoding'}
                             ],
                             value=['initial_configuration', 'no_output_before_pop', 'final_encoding'],
                             labelStyle={'display': 'inline-block', 'margin-left': '20px'},
@@ -326,7 +328,7 @@ app.layout = html.Div(
                                 {'label': '30 s', 'value': '30s'},
                                 {'label': '60 s', 'value': '60s'},
                             ],
-                            value=['1s', '30s', '60s'],
+                            value=['1s', '10s', '15s', '30s', '60s'],
                             labelStyle={'display': 'inline-block', 'margin-left': '20px'},
                             style={'text-align': "center"},
                             inputStyle={"margin-right": "5px"},

@@ -9,17 +9,17 @@ from plotly.subplots import make_subplots
 
 PATH = pathlib.Path(__file__).parent
 DATA_PATH = (PATH.joinpath("data")).resolve()
-encoding_names = {'initial_configuration': "Initial configuration",
-                  "no_output_before_pop": "Restricted opcodes<br>before POP",
-                  'at_most': "Uninterpreted opcodes<br>at most once",
-                  'pushed_once': "Numerical values pushed<br>at least once",
-                  "alternative_gas_model": "Alternative gas model",
+encoding_names = {'initial_configuration': "O'<sub>SFS</sub> + C<sub>L</sub><br>(Initial encoding)",
+                  "no_output_before_pop":  "O'<sub>SFS</sub> + C<sub>L</sub> + C<sub>R</sub>",
+                  'at_most':  "O'<sub>SFS</sub> + C<sub>L</sub> + C<sub>U</sub>",
+                  'pushed_once':  "O'<sub>SFS</sub> + C<sub>L</sub> + C<sub>N</sub>",
+                  "alternative_gas_model": "O<sub>SFS</sub> + C<sub>L</sub>",
                   "final_encoding": "Final encoding",
                   "60s": "60s", "30s": "30s", "15s": "15s", "10s": "10s", "1s": "1s",
-                  "no_output_before_pop_at_most": "Rest. bef. POP +<br> Unint. opcode at most",
-                  "no_output_before_pop_pushed_once": "Rest. bef. POP +<br> Num. value once",
-                  "no_output_before_pop_at_most_pushed_once": "Rest. bef. POP +<br> Unint. opcode at most"
-                                                              "+<br> Num. value once",
+                  "no_output_before_pop_at_most": "O'<sub>SFS</sub> + C<sub>L</sub> + C<sub>R</sub> + C<sub>U</sub>",
+                  "no_output_before_pop_pushed_once": "O'<sub>SFS</sub> + C<sub>L</sub> + C<sub>R</sub> + C<sub>N</sub>",
+                  "no_output_before_pop_at_most_pushed_once": "O'<sub>SFS</sub> + C<sub>L</sub> "
+                                                              "+ C<sub>R</sub> + C<sub>U</sub> + C<sub>N</sub>",
                   "final_setup": "Final setup"}
 
 optimality_names = {'already_optimal': "Already optimal", 'discovered_optimal': "Discovered optimal",
@@ -36,6 +36,7 @@ analyzed_parameters_names = {'saved_gas': "Gas saved", 'time': "Time in min"}
 
 solver_name_abbreviated = {"combined": "port", "z3": "z3", "oms": "oms", "barcelogic": "bclg"}
 
+solver_name = {"combined": "portfolio", "z3": "z3", "oms": "oms", "barcelogic": "barcelogic"}
 
 def plot_time(folder_name, encodings):
     fig = go.Figure()
@@ -47,7 +48,7 @@ def plot_time(folder_name, encodings):
             df = pd.read_csv(csv_name)
             arr = df['time'].to_numpy() / 60
             times = np.append(times, arr)
-            labels.extend([name] * len(arr))
+            labels.extend([solver_name[name]] * len(arr))
         fig.add_trace(go.Box(y=times, x=labels, name=encoding_names[encoding]))
     fig.update_layout(
         yaxis_title='Times per contract (minutes)',
@@ -166,10 +167,10 @@ def plot_statistics_pie_chart(solver):
     fig.update_traces(hole=.4, hoverinfo="label+percent+name")
 
     fig.update_layout(
-        title_text="Comparison between CAV'20 Setup (15 min) vs New setup (10 s)",
+        title_text="Comparison between Syrup 1.0 setup (15 min) vs Syrup 2.0 setup (10 s)",
         # Add annotations in the center of the donut pies.
-        annotations=[dict(text='15m', x=0.18, y=0.5, font_size=20, showarrow=False),
-                     dict(text='10s', x=0.82, y=0.5, font_size=20, showarrow=False)])
+        annotations=[dict(text='syrup 1.0', x=0.14, y=0.5, font_size=15, showarrow=False),
+                     dict(text='syrup 2.0', x=0.85, y=0.5, font_size=15, showarrow=False)])
     return fig
 
 
@@ -190,8 +191,8 @@ def plot_bar_comparison(solver, category_name):
         else:
             cav_values.append(cav_row[category_name])
             syrup_values.append(syrup_row[category_name])
-    fig = go.Figure(data=[go.Bar(name="CAV'20 Setup", x=labels, y=cav_values),
-                          go.Bar(name='New Setup', x=labels, y=syrup_values)])
+    fig = go.Figure(data=[go.Bar(name="syrup 1.0", x=labels, y=cav_values),
+                          go.Bar(name='syrup 2.0', x=labels, y=syrup_values)])
     fig.update_layout(barmode='group', yaxis_title=analyzed_parameters_names[category_name] + ' per contract',)
     if category_name == "time":
         fig.update_layout(yaxis_type="log")
