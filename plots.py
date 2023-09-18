@@ -36,7 +36,7 @@ analyzed_parameters_names = {'saved_gas': "Gas saved", 'time': "Time in min"}
 
 solver_name_abbreviated = {"combined": "port", "z3": "z3", "oms": "oms", "barcelogic": "bclg"}
 
-solver_name = {"combined": "portfolio", "z3": "z3", "oms": "oms", "barcelogic": "barcelogic"}
+solver_name = {"combined": "Portfolio", "z3": "Z3", "oms": "OMS", "barcelogic": "Barcelogic"}
 
 def plot_time(folder_name, encodings):
     fig = go.Figure()
@@ -67,7 +67,7 @@ def plot_gas(folder_name, encodings):
             df = pd.read_csv(csv_name)
             arr = df['saved_gas'].to_numpy()
             times = np.append(times, arr)
-            labels.extend([name] * len(arr))
+            labels.extend([solver_name[name]] * len(arr))
         fig.add_trace(go.Box(y=times, x=labels, name=encoding_names[encoding]))
     fig.update_layout(
         yaxis_title='Saved gas per contract',
@@ -193,7 +193,7 @@ def plot_bar_comparison(solver, category_name):
             syrup_values.append(syrup_row[category_name])
     fig = go.Figure(data=[go.Bar(name="syrup 1.0", x=labels, y=cav_values),
                           go.Bar(name='syrup 2.0', x=labels, y=syrup_values)])
-    fig.update_layout(barmode='group', yaxis_title=analyzed_parameters_names[category_name] + ' per contract',)
+    fig.update_layout(barmode='group', font_size=16, yaxis_title=analyzed_parameters_names[category_name] + ' per contract',)
     if category_name == "time":
         fig.update_layout(yaxis_type="log")
     return fig
